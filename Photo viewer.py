@@ -3,7 +3,7 @@ from PIL import Image, ImageTk, ExifTags
 import tkinter as tk
 print("lancement du programme")
 # Chemin du dossier contenant les photos
-dossier_photos = "C:\\Users\\ordi2204914\\Pictures\\photos"
+dossier_photos = "Path"
 
 # Affichage de la dernière photo ajoutée en plein écran
 root = tk.Tk()
