@@ -1,9 +1,13 @@
 import os
 from PIL import Image, ImageTk, ExifTags
 import tkinter as tk
+import rawpy
+import exifread
+
+
 print("lancement du programme")
 # Chemin du dossier contenant les photos
-dossier_photos = "Path"
+dossier_photos = "F:\Catalog\\04-07-23\DCIM\\104MSDCF"
 
 # Affichage de la dernière photo ajoutée en plein écran
 root = tk.Tk()
@@ -28,15 +32,21 @@ def afficher_derniere_photo():
         chemin_fichier_recent = os.path.join(dossier_photos, fichiers_tries[0])
         largeur_ecran, hauteur_ecran = root.winfo_screenwidth(), root.winfo_screenheight()
         # Chargement de l'image et redimensionnement pour correspondre à l'écran
-        image = Image.open(chemin_fichier_recent)
-        
-        for orientation in ExifTags.TAGS.keys():
-            if ExifTags.TAGS[orientation]=='Orientation':
-                break
-    
-        exif = image._getexif()
 
-        if exif[orientation] == 8:
+        raw_file = chemin_fichier_recent
+        raw = rawpy.imread(raw_file)
+        rgb = raw.postprocess()
+        image = Image.fromarray(rgb)
+        # image = Image.open(chemin_fichier_recent,  mode='r')
+        
+        # for orientation in ExifTags.TAGS.keys():
+        #     if ExifTags.TAGS[orientation]=='Orientation':
+        #         break
+        
+        with open(raw_file, 'rb') as f:
+            exif = exifread.process_file(f)
+        orientation = exif['Image Orientation'].values
+        if orientation == 8:
             image=image.transpose(Image.ROTATE_90)
         largeur, hauteur = root.winfo_screenwidth(), root.winfo_screenheight()
 
@@ -45,7 +55,6 @@ def afficher_derniere_photo():
         photo = ImageTk.PhotoImage(image)
         canvas.delete("image")  # Supprimer uniquement les objets de type "image"
         canvas.config(width=largeur, height=hauteur)
-        print((largeur_ecran-image.width)//2)
         canvas.create_image((largeur_ecran-image.width)//2, 0, anchor="nw", image=photo, tags="image")
 
         # Mise à jour de l'image actuelle et de l'image d'origine
@@ -54,7 +63,7 @@ def afficher_derniere_photo():
             original_image = image.copy()
 
     # Actualisation toutes les 2 secondes (ajustez si nécessaire)
-    root.after(500, afficher_derniere_photo)
+    root.after(100, afficher_derniere_photo)
 
 def rotate_image():
     global is_rotated
