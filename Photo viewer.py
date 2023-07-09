@@ -7,7 +7,7 @@ import exifread
 
 print("lancement du programme")
 # Chemin du dossier contenant les photos
-dossier_photos = "Your/path"
+dossier_photos = "F:\Catalog\\04-07-23\DCIM\\104MSDCF"
 
 # Affichage de la dernière photo ajoutée en plein écran
 root = tk.Tk()
@@ -32,20 +32,28 @@ def afficher_derniere_photo():
         chemin_fichier_recent = os.path.join(dossier_photos, fichiers_tries[0])
         largeur_ecran, hauteur_ecran = root.winfo_screenwidth(), root.winfo_screenheight()
         # Chargement de l'image et redimensionnement pour correspondre à l'écran
+        if "ARW" in chemin_fichier_recent or "RAW" in chemin_fichier_recent:
+            raw_file = chemin_fichier_recent
+            raw = rawpy.imread(raw_file)
+            rgb = raw.postprocess()
+            image = Image.fromarray(rgb)
+            
+            with open(raw_file, 'rb') as f:
+                exifr = exifread.process_file(f)
+            orientation = exifr['Image Orientation'].values
 
-        raw_file = chemin_fichier_recent
-        raw = rawpy.imread(raw_file)
-        rgb = raw.postprocess()
-        image = Image.fromarray(rgb)
-        # image = Image.open(chemin_fichier_recent,  mode='r')
-        
-        # for orientation in ExifTags.TAGS.keys():
-        #     if ExifTags.TAGS[orientation]=='Orientation':
-        #         break
-        
-        with open(raw_file, 'rb') as f:
-            exif = exifread.process_file(f)
-        orientation = exif['Image Orientation'].values
+        else : 
+            image = Image.open(chemin_fichier_recent)
+            
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation]=='Orientation':
+                    break
+            exif = image._getexif()
+            try:
+                orientation = exif[orientation]
+            except : pass
+
+
         if orientation == 8:
             image=image.transpose(Image.ROTATE_90)
         largeur, hauteur = root.winfo_screenwidth(), root.winfo_screenheight()
