@@ -7,7 +7,7 @@ import exifread
 
 print("lancement du programme")
 # Chemin du dossier contenant les photos
-dossier_photos = "F:\Catalog\\04-07-23\DCIM\\104MSDCF"
+dossier_photos = "Your/path"
 
 # Affichage de la dernière photo ajoutée en plein écran
 root = tk.Tk()
